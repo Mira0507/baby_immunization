@@ -195,7 +195,11 @@ CleanData_fn <- function(est, group) {
         dt_imp <- knn.impute(dt_mtx)
         
         # combining imputed matrix with country names 
-        dt1 <- cbind(dt[, 1], as.data.table(dt_imp))
+        dt1 <- cbind(dt[, 1], as.data.table(dt_imp)) %>%
+                mutate(Country_name = ifelse(Country_name == "Korea, Dem. Peopleâ€™s Rep.",
+                                             "Korea, Dem. Peoples Rep.", 
+                                             Country_name))
+        
         
         return(dt1)
 }
@@ -213,8 +217,10 @@ PCA_fn <- function(dt) {
         
         dt1 <- dt[, -1]
         
+        # row labeling 
         rownames(dt1) <- dt$Country_name
         
+        # PCA 
         prcomp(dt1, 
                scale = TRUE, 
                center = TRUE)
@@ -242,3 +248,35 @@ summary(pca_neonatal)
 summary(pca_infant)
 summary(pca_under5)
 
+# Extracting PC1-4 coordinates 
+pcaX_neonatal <- pca_neonatal$x[, 1:4]
+pcaX_infant <- pca_infant$x[, 1:4]
+pcaX_under5 <- pca_under5$x[, 1:4]
+
+
+# hierarchical clustering & heatmap 
+library(pheatmap)
+PCA_Heatmap_Neonatal <- pheatmap(pcaX_neonatal,
+                                 main = "Immunization and Mortality Rate: Neonatal") 
+PCA_Heatmap_Infant <- pheatmap(pcaX_infant,
+                               main = "Immunization and Mortality Rate: Infant")
+PCA_Heatmap_Under5 <- pheatmap(pcaX_under5,
+                               main = "Immunization and Mortality Rate: Under5")
+
+
+
+# Distance & clustering (manually) 
+hc_neonatal <- hclust(dist(pcaX_neonatal), 
+                        method = "average")
+
+hc_infant <- hclust(dist(pcaX_infant), 
+                    method = "average")
+
+hc_under5 <- hclust(dist(pcaX_under5), 
+                    method = "average")
+
+# K = 4? 
+
+plot(hc_neonatal)
+plot(hc_infant)
+plot(hc_under5)
