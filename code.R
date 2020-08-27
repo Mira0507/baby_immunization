@@ -605,7 +605,11 @@ CoefTable7 <- CoefTable1[, c("Group", "data")] %>%
                                   "Country_name")],
                    by = c("Group", "Country_name")) %>%
         
+        mutate(Group = factor(Group, levels = c("Neonatal", 
+                                                "Infant",
+                                                "Under5"))) %>%
         as.data.table()
+                              
 
 
 ####################### Distribution of coefficient by cluster
@@ -669,4 +673,10 @@ DistR2_plot <- CoefTable7 %>%
         ggplot(aes(x = Cluster, y = R2, fill = Cluster)) +
         geom_boxplot() + 
         facet_grid(Clustering ~ Group) + 
-        theme_bw()
+        theme_bw() +
+        ggtitle("Distribution of Rsquared") + 
+        ylab("Rsquared")
+
+
+CoefTable7[Group == "Neonatal" & kmCluster5 == "2"][]
+CoefTable7[Group == "Infant" & hCluster5 == "1"][]
