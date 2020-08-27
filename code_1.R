@@ -101,6 +101,7 @@ nut2_nst <- nut2 %>%
 ################################ Supervised Learning: Linear Regression ################################ 
 
 # Setting formulae 
+
 FormulaInfant <- as.formula(Mortality_rate_infant ~ 
                                     Immunization_BCG + 
                                     Immunization_DPT + 
@@ -169,24 +170,13 @@ nut3_lmR2 <- nut3_nst[, c("Country_name",
 # Plotting distribution of Rsquared 
 nut3_lmR2_plot <- ggplot(nut3_lmR2, 
                          aes(x = Mortality_Group, 
-                             y = R2, 
-                             color = Mortality_Group, 
+                             y = R2,  
                              fill = Mortality_Group)) +
-        geom_boxplot(alpha = 0.5) +
+        geom_boxplot(color = "black", outlier.alpha = 0.5) +
         theme_bw() + 
         ggtitle("Distribution of Rsquared in Linear Regression Models") + 
         xlab("Mortality Group") + 
         ylab("Rsquared")
-
-# Top and bottom Rsquared countries 
-R2ToptoBottom <- nut3_lmR2 %>% 
-        arrange(desc(R2)) %>%
-        as.data.table()
-
-# Filtering countries whose R2 from Under
-Neonatal_R2Over0.9 <- R2ToptoBottom[R2 >= 0.9 & Mortality_Group == "Neonatal"]
-Infant_R2Over0.9 <- R2ToptoBottom[R2 >= 0.9 & Mortality_Group == "Infant"]
-Under5_R2Over0.9 <- R2ToptoBottom[R2 >= 0.9 & Mortality_Group == "Under5"]
 
 
 # Data cleaning for regression coefficients 
@@ -372,6 +362,8 @@ Scree_fn <- function(dt, tit, intercept1, intercept2) {
                            color = "red")
 }
 
+
+
 CoefTable2 <- CoefTable1 %>%
         
         # data cleaning
@@ -386,6 +378,11 @@ CoefTable2 <- CoefTable1 %>%
                # Scree plot to determine k
                KMScree = map(data, 
                              ~ Scree_fn(.x, paste("Scree Plot:", Group), 2, 3)))
+
+tSNE_ScreePlot <- grid.arrange(CoefTable2$KMScree[[1]],
+                               CoefTable2$KMScree[[2]],
+                               CoefTable2$KMScree[[3]],
+                               nrow = 1)
 
 CoefTable3 <- CoefTable2 %>%
         
@@ -443,6 +440,8 @@ tSNE_k3_plot <- tSNEClustering_Viz_fn(CoefTable3,
                                       "Clustering and Visualization by tSNE (k = 3)")
 
 
+tSNE_k2_vs_k3 <- grid.arrange(tSNE_k2_plot,
+                              tSNE_k3_plot)
 
 ####################### PCA
 
@@ -480,7 +479,10 @@ PCAScree_fn <- function(pca, pc, tit) {
                 theme_bw() +
                 scale_x_continuous(n.breaks = length(pc)) + 
                 ylab("Cumulative Proportion of Variance Explained (%)") + 
-                ggtitle(tit)
+                ggtitle(tit) + 
+                geom_hline(yintercept = 80, 
+                           color = "red",
+                           size = 1)
 }
 
 CoefTable4 <- CoefTable %>%
@@ -508,10 +510,15 @@ CoefTable4 <- CoefTable %>%
                data = map2(data, PCA, ~ mutate(.x, PC4 = .y$x[, 4])),
                data = map2(data, PCA, ~ mutate(.x, PC5 = .y$x[, 5])))
 
-Prop_var_plot <- grid.arrange(CoefTable4$PCA_scree[[1]],
-                              CoefTable4$PCA_scree[[2]],
-                              CoefTable4$PCA_scree[[3]],
-                              nrow = 1)
+PCA_biplolar <- grid.arrange(CoefTable4$biplot2[[1]],
+                             CoefTable4$biplot2[[2]],
+                             CoefTable4$biplot2[[3]],
+                             nrow = 1)
+
+PCA_prob_var_plot <- grid.arrange(CoefTable4$PCA_scree[[1]],
+                                  CoefTable4$PCA_scree[[2]],
+                                  CoefTable4$PCA_scree[[3]],
+                                  nrow = 1)
 
 CoefTable5 <- CoefTable4 %>%
         
@@ -525,6 +532,13 @@ CoefTable5 <- CoefTable4 %>%
                # Scree plot to determine k
                KMScree = map2(data, Group,
                               ~ Scree_fn(.x, paste("Scree Plot:", .y), 2, 3)))
+
+
+
+PCA_ScreePlot <- grid.arrange(CoefTable5$KMScree[[1]],
+                              CoefTable5$KMScree[[2]],
+                              CoefTable5$KMScree[[3]],
+                              nrow = 1)
 
 
 CoefTable6 <- CoefTable5 %>%
@@ -587,6 +601,9 @@ PCA_k3_plot <- PCAClustering_Viz_fn(CoefTable6,
                                     "Clustering and Visualization by PCA (k = 3)")
 
 
+PCA_k2_vs_k3 <- grid.arrange(PCA_k2_plot,
+                             PCA_k3_plot,
+                             ncol = 1)
 
 ################################ Data Interpretation Based on tSNE-clustering ################################
 
@@ -599,8 +616,8 @@ CoefTable7 <- CoefTable1[, c("Group", "data")] %>%
         unnest(data) %>%
         
         inner_join(CoefTable3[, c("Group", 
-                                  "kmCluster3",
-                                  "hCluster3",
+                                  "kmCluster2",
+                                  "hCluster2",
                                   "Country_name")],
                    by = c("Group", "Country_name")) %>%
         
@@ -633,29 +650,41 @@ CoefDist_fn <- function(dt, column_compare, method){
                 ggplot(aes(x = Coefficient, 
                            y = Value,
                            fill = Coefficient)) + 
-                geom_boxplot() + 
+                geom_boxplot(outlier.alpha = 0.5) + 
                 theme_bw() + 
                 theme(axis.text.x = element_blank()) + 
                 facet_grid(Cluster ~ Group) + 
                 ggtitle(paste("Distribution of Coefficients:", method))}
 
 # Plotting distribution of coefficient by cluster
-DistCoef_HC_plot1 <- CoefDist_fn(CoefTable7[, !c("kmCluster3", "R2")], 
-                                 "hCluster3",
+DistCoef_HC_plot1 <- CoefDist_fn(CoefTable7[, !c("kmCluster2", "R2")], 
+                                 "hCluster2",
                                  "Hierarchical Clustering")     
 
-DistCoef_HC_plot2 <- DistCoef_HC_plot1 +
+DistCoef_HC_plot2 <- CoefDist_fn(CoefTable7[, !c("kmCluster2", "R2")], 
+                                 "hCluster2",
+                                 "Hierarchical Clustering (Log)")   +
         ylab("Value (Log Scale)") +
         scale_y_log10() 
 
+Coef_Distribution_HC <- grid.arrange(DistCoef_HC_plot1, 
+                                     DistCoef_HC_plot2,
+                                     ncol = 1)
 
-DistCoef_KMC_plot1 <- CoefDist_fn(CoefTable7[, !c("hCluster3", "R2")], 
-                                  "kmCluster3",
+
+DistCoef_KMC_plot1 <- CoefDist_fn(CoefTable7[, !c("hCluster2", "R2")], 
+                                  "kmCluster2",
                                   "K-means Clustering") 
 
-DistCoef_KMC_plot2 <- DistCoef_KMC_plot1 +
+DistCoef_KMC_plot2 <- CoefDist_fn(CoefTable7[, !c("hCluster2", "R2")], 
+                                  "kmCluster2",
+                                  "K-means Clustering (Log)")  +
         ylab("Value (Log Scale)") +
         scale_y_log10() 
+
+Coef_Distribution_KMC <- grid.arrange(DistCoef_KMC_plot1, 
+                                      DistCoef_KMC_plot2,
+                                     ncol = 1)
 
 
 ####################### Distribution of R2 by cluster
@@ -664,17 +693,14 @@ DistCoef_KMC_plot2 <- DistCoef_KMC_plot1 +
 DistR2_plot <- CoefTable7 %>%
         
         # data cleaning
-        gather(Clustering, Cluster, c("kmCluster3", "hCluster3")) %>%
-        mutate(Clustering = ifelse(Clustering == "kmCluster3", "K-means", "Hierarchical")) %>%
+        gather(Clustering, Cluster, c("kmCluster2", "hCluster2")) %>%
+        mutate(Clustering = ifelse(Clustering == "kmCluster2", "K-means", "Hierarchical")) %>%
         
         # plotting
         ggplot(aes(x = Cluster, y = R2, fill = Cluster)) +
-        geom_boxplot() + 
+        geom_boxplot(outlier.alpha = 0.5) + 
         facet_grid(Clustering ~ Group) + 
         theme_bw() +
         ggtitle("Distribution of Rsquared") + 
         ylab("Rsquared")
 
-
-CoefTable7[Group == "Neonatal" & kmCluster3 == "2"][]
-CoefTable7[Group == "Infant" & hCluster3 == "1"][]
