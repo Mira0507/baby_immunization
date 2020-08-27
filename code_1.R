@@ -653,7 +653,7 @@ CoefDist_fn <- function(dt, column_compare, method){
                 geom_boxplot(outlier.alpha = 0.5) + 
                 theme_bw() + 
                 theme(axis.text.x = element_blank()) + 
-                facet_grid(Cluster ~ Group) + 
+                facet_grid(Group ~ Cluster) + 
                 ggtitle(paste("Distribution of Coefficients:", method))}
 
 # Plotting distribution of coefficient by cluster
@@ -699,7 +699,7 @@ DistR2_plot <- CoefTable7 %>%
         # plotting
         ggplot(aes(x = Cluster, y = R2, fill = Cluster)) +
         geom_boxplot(outlier.alpha = 0.5) + 
-        facet_grid(Clustering ~ Group) + 
+        facet_grid(Group ~ Clustering) + 
         theme_bw() +
         ggtitle("Distribution of Rsquared") + 
         ylab("Rsquared")
