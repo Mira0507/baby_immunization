@@ -176,7 +176,8 @@ nut3_lmR2_plot <- ggplot(nut3_lmR2,
         theme_bw() + 
         ggtitle("Distribution of Rsquared in Linear Regression Models") + 
         xlab("Mortality Group") + 
-        ylab("Rsquared")
+        ylab("Rsquared") + 
+        geom_hline(yintercept = 0.9, color = "red", size = 1)
 
 
 # Data cleaning for regression coefficients 
@@ -482,6 +483,9 @@ PCAScree_fn <- function(pca, pc, tit) {
                 ggtitle(tit) + 
                 geom_hline(yintercept = 80, 
                            color = "red",
+                           size = 1) + 
+                geom_vline(xintercept = 5, 
+                           color = "orange", 
                            size = 1)
 }
 
