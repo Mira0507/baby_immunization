@@ -176,7 +176,8 @@ nut3_lmR2_plot <- ggplot(nut3_lmR2,
         theme_bw() + 
         ggtitle("Distribution of Rsquared in Linear Regression Models") + 
         xlab("Mortality Group") + 
-        ylab("Rsquared")
+        ylab("Rsquared") + 
+        geom_hline(yintercept = 0.9, color = "red", size = 1)
 
 
 # Data cleaning for regression coefficients 
@@ -482,6 +483,9 @@ PCAScree_fn <- function(pca, pc, tit) {
                 ggtitle(tit) + 
                 geom_hline(yintercept = 80, 
                            color = "red",
+                           size = 1) + 
+                geom_vline(xintercept = 5, 
+                           color = "orange", 
                            size = 1)
 }
 
@@ -653,7 +657,7 @@ CoefDist_fn <- function(dt, column_compare, method){
                 geom_boxplot(outlier.alpha = 0.5) + 
                 theme_bw() + 
                 theme(axis.text.x = element_blank()) + 
-                facet_grid(Cluster ~ Group) + 
+                facet_grid(Group ~ Cluster) + 
                 ggtitle(paste("Distribution of Coefficients:", method))}
 
 # Plotting distribution of coefficient by cluster
@@ -699,7 +703,7 @@ DistR2_plot <- CoefTable7 %>%
         # plotting
         ggplot(aes(x = Cluster, y = R2, fill = Cluster)) +
         geom_boxplot(outlier.alpha = 0.5) + 
-        facet_grid(Clustering ~ Group) + 
+        facet_grid(Group ~ Clustering) + 
         theme_bw() +
         ggtitle("Distribution of Rsquared") + 
         ylab("Rsquared")
