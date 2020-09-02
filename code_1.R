@@ -708,3 +708,124 @@ DistR2_plot <- CoefTable7 %>%
         ggtitle("Distribution of Rsquared") + 
         ylab("Rsquared")
 
+
+CoefTable7[hCluster2 == 2 & Group == "Neonatal"][]
+sample_n(CoefTable7[hCluster2 == 1 
+                    & Group == "Neonatal"], 
+         5)$Country_name
+
+
+################################ Data Presentation ################################
+
+SelectCountries_fn <- function(Seed, Cluster_Num, Age_Group, Sample_Num) {
+        
+        set.seed(Seed)
+        ct <- sample_n(CoefTable7[kmCluster2 == Cluster_Num 
+                                  & Group == Age_Group], 
+                       Sample_Num)$Country_name
+        
+        return(ct)
+}
+
+
+
+MortalityPlot_fn <- function(dt, 
+                             xvar, 
+                             yvar, 
+                             Undernourishment_Percent_of_Population, 
+                             COL,
+                             tit) {
+        
+        dt %>% ggplot(aes(x = xvar, 
+                          y = yvar,
+                          size = Undernourishment_Percent_of_Population)) + 
+                geom_point(alpha = 0.5,
+                           color = COL) + 
+                geom_smooth(method = "lm") +
+                theme_bw() + 
+                facet_grid(. ~ Country_name) +
+                ggtitle(tit) + 
+                ylab("Mortality Rate (Per 1,000 Live Births)") +
+                xlab("Current Health Expenditure per Capita (Current USD)")
+                
+}
+
+
+
+# Neonatal Mortility Rate plot of random countries in each cluster
+Neonatal_C1 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(787, 1, "Neonatal", 10)] %>%
+        mutate(Cluster = "1")
+
+Neonatal_C2 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(787, 2, "Neonatal", 10)] %>%
+        mutate(Cluster = "2")
+
+
+Neonatal_Random_Plot <-
+        grid.arrange(MortalityPlot_fn(Neonatal_C1, 
+                                      Neonatal_C1$Health_expenditure_per_capita,
+                                      Neonatal_C1$Mortality_rate_neonatal,
+                                      Neonatal_C1$Prevalence_of_undernourishment,
+                                      "#003300",
+                                      "Neonatal Mortality Rate (Cluster 1)"),
+                     MortalityPlot_fn(Neonatal_C2, 
+                                      Neonatal_C2$Health_expenditure_per_capita,
+                                      Neonatal_C2$Mortality_rate_neonatal,
+                                      Neonatal_C2$Prevalence_of_undernourishment,
+                                      "#660033",
+                                      "Neonatal Mortality Rate (Cluster 2)"),
+                     ncol = 1)
+
+# Infant Mortility Rate plot of random countries in each cluster
+Infant_C1 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(7677, 1, "Infant", 10)] %>%
+        mutate(Cluster = "1")
+
+Infant_C2 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(7677, 2, "Infant", 10)] %>%
+        mutate(Cluster = "2")
+
+
+Infant_Random_Plot <-
+        grid.arrange(MortalityPlot_fn(Infant_C1, 
+                                      Infant_C1$Health_expenditure_per_capita,
+                                      Infant_C1$Mortality_rate_neonatal,
+                                      Infant_C1$Prevalence_of_undernourishment,
+                                      "#003300",
+                                      "Infant Mortality Rate (Cluster 1)"),
+                     MortalityPlot_fn(Infant_C2, 
+                                      Infant_C2$Health_expenditure_per_capita,
+                                      Infant_C2$Mortality_rate_neonatal,
+                                      Infant_C2$Prevalence_of_undernourishment,
+                                      "#660033",
+                                      "Infant Mortality Rate (Cluster 2)"),
+                     ncol = 1)
+
+
+# Under 5 Mortility Rate plot of random countries in each cluster
+Under5_C1 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(466, 1, "Under5", 10)] %>%
+        mutate(Cluster = "1")
+
+Under5_C2 <- nut2[Country_name %chin% 
+                          SelectCountries_fn(466, 2, "Under5", 10)] %>%
+        mutate(Cluster = "2")
+
+Under5_Random5_Plot <-
+        grid.arrange(MortalityPlot_fn(Under5_C1, 
+                                      Under5_C1$Health_expenditure_per_capita,
+                                      Under5_C1$Mortality_rate_neonatal,
+                                      Under5_C1$Prevalence_of_undernourishment,
+                                      "#003300",
+                                      "Under5 Mortality Rate (Cluster 1)"),
+                     MortalityPlot_fn(Under5_C2, 
+                                      Under5_C2$Health_expenditure_per_capita,
+                                      Under5_C2$Mortality_rate_neonatal,
+                                      Under5_C2$Prevalence_of_undernourishment,
+                                      "#660033",
+                                      "Under5 Mortality Rate (Cluster 2)"),
+                     ncol = 1)
+
+
+
