@@ -741,7 +741,6 @@ MortalityPlot_fn <- function(dt,
                           size = Undernourishment_Percent_of_Population)) + 
                 geom_point(alpha = 0.5,
                            color = COL) + 
-                geom_smooth(method = "lm") +
                 theme_bw() + 
                 facet_grid(. ~ Country_name) +
                 ggtitle(tit) + 
@@ -768,13 +767,16 @@ Neonatal_Random_Plot <-
                                       Neonatal_C1$Mortality_rate_neonatal,
                                       Neonatal_C1$Prevalence_of_undernourishment,
                                       "#003300",
-                                      "Neonatal Mortality Rate (Cluster 1)"),
+                                      "Neonatal Mortality Rate (Cluster 1)") + 
+                             xlim(0, 2000) + 
+                             ylim(0, 60),
                      MortalityPlot_fn(Neonatal_C2, 
                                       Neonatal_C2$Health_expenditure_per_capita,
                                       Neonatal_C2$Mortality_rate_neonatal,
                                       Neonatal_C2$Prevalence_of_undernourishment,
                                       "#660033",
-                                      "Neonatal Mortality Rate (Cluster 2)"),
+                                      "Neonatal Mortality Rate (Cluster 2)") +
+                             ylim(0, 60),
                      ncol = 1)
 
 # Infant Mortility Rate plot of random countries in each cluster
@@ -793,13 +795,16 @@ Infant_Random_Plot <-
                                       Infant_C1$Mortality_rate_neonatal,
                                       Infant_C1$Prevalence_of_undernourishment,
                                       "#003300",
-                                      "Infant Mortality Rate (Cluster 1)"),
+                                      "Infant Mortality Rate (Cluster 1)") + 
+                             xlim(0, 7000),
                      MortalityPlot_fn(Infant_C2, 
                                       Infant_C2$Health_expenditure_per_capita,
                                       Infant_C2$Mortality_rate_neonatal,
                                       Infant_C2$Prevalence_of_undernourishment,
                                       "#660033",
-                                      "Infant Mortality Rate (Cluster 2)"),
+                                      "Infant Mortality Rate (Cluster 2)") +
+                             ylim(0, 60) + 
+                             xlim(0, 7000),
                      ncol = 1)
 
 
@@ -818,13 +823,17 @@ Under5_Random5_Plot <-
                                       Under5_C1$Mortality_rate_neonatal,
                                       Under5_C1$Prevalence_of_undernourishment,
                                       "#003300",
-                                      "Under5 Mortality Rate (Cluster 1)"),
+                                      "Under5 Mortality Rate (Cluster 1)") + 
+                             xlim(0, 7000) + 
+                             ylim(0, 65),
                      MortalityPlot_fn(Under5_C2, 
                                       Under5_C2$Health_expenditure_per_capita,
                                       Under5_C2$Mortality_rate_neonatal,
                                       Under5_C2$Prevalence_of_undernourishment,
                                       "#660033",
-                                      "Under5 Mortality Rate (Cluster 2)"),
+                                      "Under5 Mortality Rate (Cluster 2)") + 
+                             xlim(0, 7000) + 
+                             ylim(0, 65),
                      ncol = 1)
 
 
