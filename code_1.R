@@ -817,7 +817,7 @@ Under5_C2 <- nut2[Country_name %chin%
                           SelectCountries_fn(466, 2, "Under5", 10)] %>%
         mutate(Cluster = "2")
 
-Under5_Random5_Plot <-
+Under5_Random_Plot <-
         grid.arrange(MortalityPlot_fn(Under5_C1, 
                                       Under5_C1$Health_expenditure_per_capita,
                                       Under5_C1$Mortality_rate_neonatal,
